@@ -74,7 +74,7 @@ function App() {
   }
 
   const getServerClassification = async (name: string, surname: string) => {
-    return await axios.post("http://namepredictor.pythonanywhere.com/get_proba", {
+    return await axios.post("https://namepredictor.pythonanywhere.com/get_proba", {
       firstName: name,
       lastName: surname
     })
