@@ -186,7 +186,7 @@ function App() {
                 }
               </Collapse>
 
-              {predictions.length > 5 && predictions[4][1] !== 0 &&
+              {predictions.length > 5 && predictions[5][1] !== 0 &&
               <Flex h={8} w="100%" as={'button'} onClick={() => setShowAllPredictions((val) => !val)}
                     borderTopWidth={'1px'}
                     align="center" justify="center">
