@@ -2,7 +2,8 @@ import React, {useState} from 'react'
 import './style.css'
 import {
   Heading, Box, Input, HStack, Center, Button, VStack, Flex,
-  IconButton, Link, Stack, Text, ButtonGroup, Divider, useToast, Collapse
+  IconButton, Link, Stack, Text, ButtonGroup, Divider, useToast, Collapse,
+  FormControl, FormLabel
 } from "@chakra-ui/react"
 import {ChevronDownIcon, ChevronUpIcon} from '@chakra-ui/icons'
 import axios from 'axios'
@@ -45,6 +46,7 @@ interface ServerResultsType {
 
 type ClientPredictionsType = [string, number][]
 
+
 function App() {
   const [name, setName] = useState('')
   const [surname, setSurname] = useState('')
@@ -80,7 +82,8 @@ function App() {
     })
   }
 
-  const classify = async () => {
+  const onSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     try {
       setShowAllPredictions(false)
       setPredictions([])
@@ -103,29 +106,37 @@ function App() {
         <Center>
           <Heading textAlign="center" color="gray.700" mx="auto" mt={10}>Ethnicity classification</Heading>
         </Center>
+        <form onSubmit={onSubmit}>
+          <Flex mt={14} flexWrap={'wrap'} align="center" justify="center">
+            <Flex flexGrow={1} m={2} direction="column">
+              <FormControl>
+                <FormLabel fontWeight="normal">Имя</FormLabel>
+                <Input autoComplete="given-name"
+                       value={name}
+                       onChange={(event) => setName(event.target.value)}
+                       id={'name'}
+                       placeholder={'Лудмила'}/>
+              </FormControl>
+            </Flex>
 
-        <Flex mt={14} flexWrap={'wrap'} align="center" justify="center">
-          <Flex flexGrow={1} m={2} direction="column">
-            <Text as={'label'} mb={1} htmlFor="name">
-              Имя
-            </Text>
+            <Flex flexGrow={1} m={2} direction={'column'}>
+              <FormControl>
+                <FormLabel fontWeight="normal">
+                  Фамилия
+                </FormLabel>
+                <Input autoComplete="family-name"
+                       value={surname}
+                       onChange={(event) => setSurname(event.target.value)}
+                       id={'surname'}
+                       placeholder={'Фрия'}/>
+              </FormControl>
+            </Flex>
 
-            <Input autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} id={'name'} placeholder={'Лудмила'}/>
           </Flex>
-
-          <Flex flexGrow={1} m={2} direction={'column'}>
-            <Text as={'label'} mb={1} htmlFor={'surname'}>
-              Фамилия
-            </Text>
-
-            <Input autoComplete="family-name" value={surname} onChange={(event) => setSurname(event.target.value)} id={'surname'}
-                   placeholder={'Фрия'}/>
-          </Flex>
-
-        </Flex>
-        <Center>
-          <Button colorScheme="gray" isLoading={isLoading} onClick={classify} mt={10} size={'md'}>Classify</Button>
-        </Center>
+          <Center>
+            <Button type="submit" colorScheme="gray" isLoading={isLoading} mt={10} size={'md'}>Classify</Button>
+          </Center>
+        </form>
         <Collapse in={predictions.length > 0}>
           <Divider mt={10}/>
           <Box my={10}>
@@ -164,7 +175,7 @@ function App() {
                 {
                   predictions.slice(5).map((value, i) =>
                     value[1] !== 0 && <Flex key={value[0]} borderTopWidth={'1px'} p={4} px={6}
-                          justify="space-between">
+                                            justify="space-between">
                       <Text>
                         {value[0]}
                       </Text>
