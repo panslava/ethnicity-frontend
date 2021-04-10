@@ -5,6 +5,7 @@ import {
   IconButton, Link, Stack, Text, ButtonGroup, Divider, useToast, Collapse
 } from "@chakra-ui/react"
 import {ChevronDownIcon, ChevronUpIcon} from '@chakra-ui/icons'
+import axios from 'axios'
 
 const smallPredictionsSize = 5
 
@@ -37,8 +38,7 @@ const Footer = () =>
   </Box>
 
 interface ServerResultsType {
-  'fullname': string
-  'predictions': {
+  'data': {
     [key: string]: number
   }
 }
@@ -56,8 +56,7 @@ function App() {
   const toast = useToast()
 
   const mockServerResponse: ServerResultsType = {
-    'fullname': 'Вячеслав Панасовец',
-    'predictions': {
+    'data': {
       'Russian': 0.65,
       'Moldovan': 0.1,
       'Ukrainian': 0.1,
@@ -74,12 +73,11 @@ function App() {
     }
   }
 
-  const getServerClassification = (name: string, surname: string): Promise<ServerResultsType> => {
-    return new Promise(resolve =>
-      setTimeout(() => {
-        resolve(mockServerResponse)
-      }, 2000)
-    )
+  const getServerClassification = async (name: string, surname: string) => {
+    return await axios.post("http://namepredictor.pythonanywhere.com/get_proba", {
+      firstName: name,
+      lastName: surname
+    })
   }
 
   const classify = async () => {
@@ -87,9 +85,9 @@ function App() {
       setShowAllPredictions(false)
       setPredictions([])
       setIsLoading(true)
-      const serverResults = await getServerClassification(name, surname)
-      setServerFullname(serverResults['fullname'])
-      setPredictions(Object.entries(serverResults['predictions']).sort((a, b) => b[1] - a[1]))
+      const serverResults: ServerResultsType = await getServerClassification(name, surname)
+      setServerFullname(`${name} ${surname}`)
+      setPredictions(Object.entries(serverResults['data']).sort((a, b) => b[1] - a[1]))
     }
     catch (err) {
       console.error(err)
@@ -112,7 +110,7 @@ function App() {
               Имя
             </Text>
 
-            <Input value={name} onChange={(event) => setName(event.target.value)} id={'name'} placeholder={'Лудмила'}/>
+            <Input autoComplete="given-name" value={name} onChange={(event) => setName(event.target.value)} id={'name'} placeholder={'Лудмила'}/>
           </Flex>
 
           <Flex flexGrow={1} m={2} direction={'column'}>
@@ -120,7 +118,7 @@ function App() {
               Фамилия
             </Text>
 
-            <Input value={surname} onChange={(event) => setSurname(event.target.value)} id={'surname'}
+            <Input autoComplete="family-name" value={surname} onChange={(event) => setSurname(event.target.value)} id={'surname'}
                    placeholder={'Фрия'}/>
           </Flex>
 
@@ -145,18 +143,18 @@ function App() {
                           {value[0]}
                         </Text>
                         <Text color={'white'} fontSize="lg" fontWeight={'semibold'}>
-                          {value[1].toFixed(2)}%
+                          {(value[1] * 100).toFixed(2)}%
                         </Text>
                       </Flex>
                     )
                   }
                   else return (
-                    <Flex key={value[0]} borderTopWidth={'1px'} p={4} px={6} justify="space-between">
+                    value[1] !== 0 && <Flex key={value[0]} borderTopWidth={'1px'} p={4} px={6} justify="space-between">
                       <Text>
                         {value[0]}
                       </Text>
                       <Text>
-                        {value[1].toFixed(2)}%
+                        {(value[1] * 100).toFixed(2)}%
                       </Text>
                     </Flex>
                   )
@@ -165,19 +163,21 @@ function App() {
               <Collapse in={showAllPredictions && predictions.length > 5}>
                 {
                   predictions.slice(5).map((value, i) =>
-                    <Flex key={value[0]} borderTopWidth={'1px'} p={4} px={6}
+                    value[1] !== 0 && <Flex key={value[0]} borderTopWidth={'1px'} p={4} px={6}
                           justify="space-between">
                       <Text>
                         {value[0]}
                       </Text>
                       <Text>
-                        {value[1].toFixed(2)}%
+                        {(value[1] * 100).toFixed(2)}%
                       </Text>
                     </Flex>)
                 }
               </Collapse>
 
-              <Flex h={8} w="100%" as={'button'} onClick={() => setShowAllPredictions((val) => !val)} borderTopWidth={'1px'}
+              {predictions.length > 5 && predictions[4][1] !== 0 &&
+              <Flex h={8} w="100%" as={'button'} onClick={() => setShowAllPredictions((val) => !val)}
+                    borderTopWidth={'1px'}
                     align="center" justify="center">
                 {
                   showAllPredictions ?
@@ -185,6 +185,7 @@ function App() {
                     <ChevronDownIcon color={'gray.400'} w={6} h={6}/>
                 }
               </Flex>
+              }
             </Box>
           </Box>
         </Collapse>
