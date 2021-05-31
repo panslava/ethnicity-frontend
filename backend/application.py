@@ -52,13 +52,18 @@ mapping_full = {0: 'Армяне',
 
 ethnos = list(mapping.values())
 ethnos_full = list(mapping_full.values())
-app = Flask(__name__)
-CORS(app)
+application = Flask(__name__)
+CORS(application)
 clf = load('models/aggregated_classes_model.pkl')
 clf_full = load('models/all_classes_model.pkl')
 
 
-@app.route('/get_proba', methods=['GET', 'POST'])
+@application.route('/', methods=['GET'])
+def root():
+    return 'Simple ethnicity backend response'
+
+
+@application.route('/get_proba', methods=['GET', 'POST'])
 def proba():
     if request.method == 'POST':
         content = request.json
@@ -72,7 +77,7 @@ def proba():
         return 405
 
 
-@app.route('/get_proba_full', methods=['GET', 'POST'])
+@application.route('/get_proba_full', methods=['GET', 'POST'])
 def proba_full():
     if request.method == 'POST':
         content = request.json
@@ -87,4 +92,4 @@ def proba_full():
 
 
 if __name__ == "__main__":
-    app.run()
+    application.run()

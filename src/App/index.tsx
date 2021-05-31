@@ -9,7 +9,7 @@ import {ChevronDownIcon, ChevronUpIcon} from '@chakra-ui/icons'
 import axios from 'axios'
 
 const smallPredictionsSize = 5
-const backendURL = process.env.BACKEND_URL || 'http://localhost:5000'
+const backendURL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000'
 
 const Footer = () =>
   <Box mt="auto" as="footer" role="contentinfo" py="6">
