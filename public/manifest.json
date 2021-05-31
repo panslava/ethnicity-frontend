@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Ethnicity classification",
+  "name": "Frontend for ethnicity classification machine learning models",
   "icons": [
     {
       "src": "favicon.ico",

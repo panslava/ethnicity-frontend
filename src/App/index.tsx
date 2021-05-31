@@ -1,14 +1,15 @@
 import React, {useState} from 'react'
 import './style.css'
 import {
-  Heading, Box, Input, HStack, Center, Button, VStack, Flex,
-  IconButton, Link, Stack, Text, ButtonGroup, Divider, useToast, Collapse,
-  FormControl, FormLabel
+  Heading, Box, Input, Center, Button, Flex,
+  Stack, Text, ButtonGroup, Divider, useToast, Collapse,
+  FormControl, FormLabel, Checkbox
 } from "@chakra-ui/react"
 import {ChevronDownIcon, ChevronUpIcon} from '@chakra-ui/icons'
 import axios from 'axios'
 
 const smallPredictionsSize = 5
+const backendURL = process.env.BACKEND_URL || 'http://localhost:5000'
 
 const Footer = () =>
   <Box mt="auto" as="footer" role="contentinfo" py="6">
@@ -29,9 +30,9 @@ const Footer = () =>
         spacing={{base: '2', md: '8'}}
         textAlign={{base: 'center', md: 'start'}}
       >
-        <Text>&copy; {new Date().getFullYear()} University of Exeter</Text>
-        <Link>Privacy</Link>
-        <Link>Terms and Conditions</Link>
+        {/*<Text>&copy; {new Date().getFullYear()} University of Exeter</Text>*/}
+        {/*<Link>Privacy</Link>*/}
+        {/*<Link>Terms and Conditions</Link>*/}
       </Stack>
       <ButtonGroup marginStart={{md: 'auto'}} variant="ghost">
       </ButtonGroup>
@@ -54,29 +55,11 @@ function App() {
   const [predictions, setPredictions] = useState<ClientPredictionsType>([])
   const [serverFullname, setServerFullname] = useState('')
   const [showAllPredictions, setShowAllPredictions] = useState(false)
-
+  const [useAggregatedModel, setUseAggregatedModel] = useState(false)
   const toast = useToast()
 
-  const mockServerResponse: ServerResultsType = {
-    'data': {
-      'Russian': 0.65,
-      'Moldovan': 0.1,
-      'Ukrainian': 0.1,
-      'Azerbaijani': 0.05,
-      'Georgian': 0.1,
-      'Moldovan2': 0.1,
-      'Ukrainian2': 0.1,
-      'Azerbaijani2': 0.05,
-      'Georgian2': 0.1,
-      'Moldovan3': 0.1,
-      'Ukrainian3': 0.1,
-      'Azerbaijani3': 0.05,
-      'Georgian3': 0.1
-    }
-  }
-
   const getServerClassification = async (name: string, surname: string) => {
-    return await axios.post("https://namepredictor.pythonanywhere.com/get_proba", {
+    return await axios.post(`${backendURL}/${useAggregatedModel ? 'get_proba' : 'get_proba_full'}`, {
       firstName: name,
       lastName: surname
     })
@@ -133,6 +116,16 @@ function App() {
             </Flex>
 
           </Flex>
+          <Center>
+            <Checkbox
+              colorScheme={'gray'}
+              m={2}
+              mt={4}
+              isChecked={useAggregatedModel}
+              onChange={() => setUseAggregatedModel(val => !val)}>
+              Использовать агрегированную модель
+            </Checkbox>
+          </Center>
           <Center>
             <Button type="submit" colorScheme="gray" isLoading={isLoading} mt={10} size={'md'}>Classify</Button>
           </Center>
